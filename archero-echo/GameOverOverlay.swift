@@ -74,6 +74,7 @@ class GameOverOverlay: SKNode {
         // Reload the game scene
         let newScene = GameScene(size: scene.size)
         newScene.scaleMode = scene.scaleMode
+        newScene.anchorPoint = scene.anchorPoint
         let transition = SKTransition.fade(withDuration: 0.5)
         scene.view?.presentScene(newScene, transition: transition)
     }
