@@ -25,6 +25,7 @@ class GameScene: SKScene {
 
     private var isGameOver = false
     private var lastUpdateTime: TimeInterval = 0
+    private var trackingTouch: UITouch?
 
     // MARK: - Layers
 
@@ -50,6 +51,8 @@ class GameScene: SKScene {
 
         physicsWorld.contactDelegate = self
         physicsWorld.gravity = .zero
+        
+        isUserInteractionEnabled = true
     }
 
     // MARK: - Setup
@@ -273,5 +276,34 @@ class GameScene: SKScene {
 
     func notifyEnemyKilled() {
         waveManager.enemyKilled()
+    }
+
+    // MARK: - Touches
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !isGameOver, trackingTouch == nil, let touch = touches.first else { return }
+        trackingTouch = touch
+        
+        let location = touch.location(in: hudLayer)
+        joystick.startTracking(at: location)
+    }
+
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = trackingTouch, touches.contains(touch) else { return }
+        
+        let location = touch.location(in: hudLayer)
+        joystick.updateTracking(at: location)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = trackingTouch, touches.contains(touch) else { return }
+        trackingTouch = nil
+        joystick.stopTracking()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = trackingTouch, touches.contains(touch) else { return }
+        trackingTouch = nil
+        joystick.stopTracking()
     }
 }

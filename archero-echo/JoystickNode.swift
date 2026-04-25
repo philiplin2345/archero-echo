@@ -58,25 +58,20 @@ class JoystickNode: SKNode {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Touch Handling
+    // MARK: - Manual Control (Called by GameScene)
 
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard trackingTouch == nil, let touch = touches.first else { return }
-        let loc = touch.location(in: self.parent!)
-
-        trackingTouch = touch
+    func startTracking(at location: CGPoint) {
         isActive = true
-        position = loc
+        position = location
         alpha = 1
         knobCircle.position = .zero
         direction = .zero
     }
 
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = trackingTouch, touches.contains(touch) else { return }
-        let loc = touch.location(in: self.parent!)
-
-        var delta = loc - position
+    func updateTracking(at location: CGPoint) {
+        guard isActive else { return }
+        
+        var delta = location - position
         let dist = delta.length
 
         if dist > maxDisplacement {
@@ -91,18 +86,7 @@ class JoystickNode: SKNode {
         direction = direction * normalizedMagnitude
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = trackingTouch, touches.contains(touch) else { return }
-        resetJoystick()
-    }
-
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = trackingTouch, touches.contains(touch) else { return }
-        resetJoystick()
-    }
-
-    private func resetJoystick() {
-        trackingTouch = nil
+    func stopTracking() {
         isActive = false
         direction = .zero
         knobCircle.position = .zero
