@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		5B963FA92F9DF43F00F303E4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5B963F6A2F9CB2DB00F303E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5B963F712F9CB2DB00F303E4;
+			remoteInfo = "archero-echo";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		5B963F722F9CB2DB00F303E4 /* archero-echo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "archero-echo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		5B963FA52F9DF43F00F303E4 /* archero-echoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "archero-echoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -29,10 +40,22 @@
 			path = "archero-echo";
 			sourceTree = "<group>";
 		};
+		5B963FA62F9DF43F00F303E4 /* archero-echoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "archero-echoTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		5B963F6F2F9CB2DB00F303E4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B963FA22F9DF43F00F303E4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				5B963F742F9CB2DB00F303E4 /* archero-echo */,
+				5B963FA62F9DF43F00F303E4 /* archero-echoTests */,
 				5B963F732F9CB2DB00F303E4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				5B963F722F9CB2DB00F303E4 /* archero-echo.app */,
+				5B963FA52F9DF43F00F303E4 /* archero-echoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,6 +108,29 @@
 			productReference = 5B963F722F9CB2DB00F303E4 /* archero-echo.app */;
 			productType = "com.apple.product-type.application";
 		};
+		5B963FA42F9DF43F00F303E4 /* archero-echoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5B963FAB2F9DF43F00F303E4 /* Build configuration list for PBXNativeTarget "archero-echoTests" */;
+			buildPhases = (
+				5B963FA12F9DF43F00F303E4 /* Sources */,
+				5B963FA22F9DF43F00F303E4 /* Frameworks */,
+				5B963FA32F9DF43F00F303E4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5B963FAA2F9DF43F00F303E4 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5B963FA62F9DF43F00F303E4 /* archero-echoTests */,
+			);
+			name = "archero-echoTests";
+			packageProductDependencies = (
+			);
+			productName = "archero-echoTests";
+			productReference = 5B963FA52F9DF43F00F303E4 /* archero-echoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -95,6 +143,10 @@
 				TargetAttributes = {
 					5B963F712F9CB2DB00F303E4 = {
 						CreatedOnToolsVersion = 26.4.1;
+					};
+					5B963FA42F9DF43F00F303E4 = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = 5B963F712F9CB2DB00F303E4;
 					};
 				};
 			};
@@ -113,12 +165,20 @@
 			projectRoot = "";
 			targets = (
 				5B963F712F9CB2DB00F303E4 /* archero-echo */,
+				5B963FA42F9DF43F00F303E4 /* archero-echoTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5B963F702F9CB2DB00F303E4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5B963FA32F9DF43F00F303E4 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +195,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		5B963FA12F9DF43F00F303E4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5B963FAA2F9DF43F00F303E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5B963F712F9CB2DB00F303E4 /* archero-echo */;
+			targetProxy = 5B963FA92F9DF43F00F303E4 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		5B963F892F9CB2DD00F303E4 /* Debug */ = {
@@ -323,6 +398,48 @@
 			};
 			name = Release;
 		};
+		5B963FAC2F9DF43F00F303E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YPAZH9YDV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.philiplin.archero-echoTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/archero-echo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/archero-echo";
+			};
+			name = Debug;
+		};
+		5B963FAD2F9DF43F00F303E4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2YPAZH9YDV;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.philiplin.archero-echoTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/archero-echo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/archero-echo";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -340,6 +457,15 @@
 			buildConfigurations = (
 				5B963F892F9CB2DD00F303E4 /* Debug */,
 				5B963F8A2F9CB2DD00F303E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5B963FAB2F9DF43F00F303E4 /* Build configuration list for PBXNativeTarget "archero-echoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5B963FAC2F9DF43F00F303E4 /* Debug */,
+				5B963FAD2F9DF43F00F303E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
