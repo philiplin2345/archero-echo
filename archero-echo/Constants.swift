@@ -10,11 +10,13 @@ import Foundation
 // MARK: - Physics Categories (bitmasks)
 
 struct PhysicsCategory {
-    static let none:     UInt32 = 0
-    static let player:   UInt32 = 0b0001   // 1
-    static let enemy:    UInt32 = 0b0010   // 2
-    static let bullet:   UInt32 = 0b0100   // 4
-    static let boundary: UInt32 = 0b1000   // 8
+    static let none:            UInt32 = 0
+    static let player:          UInt32 = 0b0000_0001   // 1
+    static let enemy:           UInt32 = 0b0000_0010   // 2
+    static let bullet:          UInt32 = 0b0000_0100   // 4 (player bullet)
+    static let boundary:        UInt32 = 0b0000_1000   // 8
+    static let enemyProjectile: UInt32 = 0b0001_0000   // 16
+    static let powerup:         UInt32 = 0b0010_0000   // 32
 }
 
 // MARK: - Z-Position Layers
@@ -47,6 +49,16 @@ struct EnemyConfig {
     static let hp:          Int = 30
     static let damage:      Int = 10         // damage to player on contact
     static let contactCooldown: TimeInterval = 1.0  // seconds between contact damage
+    
+    // Ranged/Magic logic
+    static let rangedRange: CGFloat = 250
+    static let magicRange:  CGFloat = 350
+    static let fireRate:    TimeInterval = 2.0
+    
+    // Boss logic
+    static let bossHP:      Int = 1500
+    static let bossSize     = CGSize(width: 100, height: 100)
+    static let bossSpeed:   CGFloat = 50
 }
 
 // MARK: - Bullet Tuning
@@ -56,6 +68,7 @@ struct BulletConfig {
     static let speed:       CGFloat = 400    // points per second
     static let damage:      Int = 15
     static let maxRange:    CGFloat = 600    // auto-remove after this distance
+    static let enemySpeed:  CGFloat = 250    // slower enemy projectiles
 }
 
 // MARK: - Wave Tuning
@@ -71,4 +84,11 @@ struct WaveConfig {
 
 struct ArenaConfig {
     static let padding: CGFloat = 0  // boundary inset from screen edges
+}
+
+// MARK: - Powerups
+
+struct PowerupConfig {
+    static let radius: CGFloat = 10
+    static let dropChance: CGFloat = 0.05 // 5% chance on enemy death
 }

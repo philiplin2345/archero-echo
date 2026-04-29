@@ -7,6 +7,13 @@
 
 import SpriteKit
 
+struct WaveDef {
+    let melee: Int
+    let ranged: Int
+    let magic: Int
+    let boss: Int
+}
+
 class WaveManager {
 
     // MARK: - State
@@ -15,6 +22,43 @@ class WaveManager {
     private(set) var enemiesAlive: Int = 0
     private(set) var totalKills: Int = 0
     private(set) var isSpawning: Bool = false
+    
+    // MARK: - Wave Definitions (63 Waves)
+    
+    private lazy var predefinedWaves: [WaveDef] = {
+        var waves: [WaveDef] = []
+        
+        // Procedurally generate 62 waves for progression
+        for i in 1...62 {
+            var melee = 0
+            var ranged = 0
+            var magic = 0
+            
+            // Waves 1-15: Melee + Ranged
+            if i <= 15 {
+                melee = i / 2 + 2
+                if i > 5 { ranged = (i - 5) / 3 + 1 }
+            }
+            // Waves 16-30: Ranged + Magic
+            else if i <= 30 {
+                ranged = (i - 10) / 2 + 1
+                if i > 20 { magic = (i - 20) / 3 + 1 }
+            }
+            // Waves 31-62: All three types
+            else {
+                melee = (i - 20) / 4 + 1
+                ranged = (i - 25) / 4 + 1
+                magic = (i - 30) / 4 + 1
+            }
+            
+            waves.append(WaveDef(melee: melee, ranged: ranged, magic: magic, boss: 0))
+        }
+        
+        // Wave 63: Jad equivalent
+        waves.append(WaveDef(melee: 0, ranged: 0, magic: 0, boss: 1))
+        
+        return waves
+    }()
 
     // MARK: - Callbacks
 
@@ -25,16 +69,34 @@ class WaveManager {
 
     /// Start the next wave. Returns the spawned enemies.
     func spawnNextWave(in scene: SKScene, arenaRect: CGRect) -> [EnemyNode] {
+        guard currentWave < predefinedWaves.count else { return [] }
+        
+        let waveDef = predefinedWaves[currentWave]
         currentWave += 1
-        let count = WaveConfig.baseEnemyCount + (currentWave - 1) * WaveConfig.enemiesPerWave
+        
+        let count = waveDef.melee + waveDef.ranged + waveDef.magic + waveDef.boss
         enemiesAlive = count
         isSpawning = true
 
         var enemies: [EnemyNode] = []
+        var typesToSpawn: [EnemyType] = []
+        
+        for _ in 0..<waveDef.melee { typesToSpawn.append(.melee) }
+        for _ in 0..<waveDef.ranged { typesToSpawn.append(.ranged) }
+        for _ in 0..<waveDef.magic { typesToSpawn.append(.magic) }
+        for _ in 0..<waveDef.boss { typesToSpawn.append(.boss) }
+        
+        typesToSpawn.shuffle()
 
-        for i in 0..<count {
-            let enemy = EnemyNode()
-            enemy.position = randomSpawnPosition(arenaRect: arenaRect)
+        for (i, type) in typesToSpawn.enumerated() {
+            let enemy = EnemyNode(type: type)
+            
+            // Boss spawns in the center, others spawn on edges
+            if type == .boss {
+                enemy.position = CGPoint(x: arenaRect.midX, y: arenaRect.midY)
+            } else {
+                enemy.position = randomSpawnPosition(arenaRect: arenaRect)
+            }
 
             // Stagger spawn with a small delay per enemy
             enemy.alpha = 0

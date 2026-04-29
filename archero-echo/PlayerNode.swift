@@ -20,6 +20,7 @@ class PlayerNode: SKSpriteNode {
 
     private var lastFireTime: TimeInterval = 0
     var canShoot: Bool = true
+    var projectileCount: Int = 1
 
     // MARK: - Init
 
@@ -64,18 +65,32 @@ class PlayerNode: SKSpriteNode {
 
     // MARK: - Shooting
 
-    /// Try to auto-shoot at the nearest enemy. Returns a BulletNode if fired, nil otherwise.
-    func tryShoot(enemies: [EnemyNode], currentTime: TimeInterval) -> BulletNode? {
-        guard isAlive, canShoot else { return nil }
-        guard currentTime - lastFireTime >= PlayerConfig.fireRate else { return nil }
-        guard let target = nearestEnemy(from: enemies) else { return nil }
+    /// Try to auto-shoot at the nearest enemy. Returns an array of BulletNodes if fired, empty otherwise.
+    func tryShoot(enemies: [EnemyNode], currentTime: TimeInterval) -> [BulletNode] {
+        guard isAlive, canShoot else { return [] }
+        guard currentTime - lastFireTime >= PlayerConfig.fireRate else { return [] }
+        guard let target = nearestEnemy(from: enemies) else { return [] }
 
         lastFireTime = currentTime
 
-        let direction = (target.position - position).normalized()
-        let bullet = BulletNode(direction: direction)
-        bullet.position = position
-        return bullet
+        let baseDirection = (target.position - position).normalized()
+        var bullets: [BulletNode] = []
+        
+        // Spread angle in radians (e.g., 15 degrees)
+        let spreadAngle: CGFloat = 15.0 * .pi / 180.0
+        let startAngle = -CGFloat(projectileCount - 1) * spreadAngle / 2.0
+        
+        let baseAngle = atan2(baseDirection.y, baseDirection.x)
+        
+        for i in 0..<projectileCount {
+            let angle = baseAngle + startAngle + CGFloat(i) * spreadAngle
+            let dir = CGPoint(x: cos(angle), y: sin(angle))
+            let bullet = BulletNode(type: .player, direction: dir)
+            bullet.position = position
+            bullets.append(bullet)
+        }
+        
+        return bullets
     }
 
     /// Find the nearest alive enemy.
@@ -106,5 +121,16 @@ class PlayerNode: SKSpriteNode {
 
     func heal(_ amount: Int) {
         currentHP = min(maxHP, currentHP + amount)
+    }
+    
+    // MARK: - Powerups
+    
+    func collectPowerup() {
+        projectileCount += 1
+        
+        // Flash yellow briefly to indicate powerup collection
+        let flash = SKAction.colorize(with: .systemYellow, colorBlendFactor: 1.0, duration: 0.1)
+        let flashBack = SKAction.colorize(with: .systemCyan, colorBlendFactor: 1.0, duration: 0.2)
+        run(SKAction.sequence([flash, flashBack]))
     }
 }

@@ -7,19 +7,28 @@
 
 import SpriteKit
 
+enum ProjectileType {
+    case player
+    case enemyRanged
+    case enemyMagic
+}
+
 class BulletNode: SKShapeNode {
 
+    let type: ProjectileType
     let damage: Int = BulletConfig.damage
     let direction: CGPoint
-    let bulletSpeed: CGFloat = BulletConfig.speed
+    let bulletSpeed: CGFloat
 
     private var distanceTraveled: CGFloat = 0
     private var previousPosition: CGPoint = .zero
 
     // MARK: - Init
 
-    init(direction: CGPoint) {
+    init(type: ProjectileType, direction: CGPoint) {
+        self.type = type
         self.direction = direction.normalized()
+        self.bulletSpeed = type == .player ? BulletConfig.speed : BulletConfig.enemySpeed
         super.init()
 
         let path = CGMutablePath()
@@ -27,11 +36,21 @@ class BulletNode: SKShapeNode {
                     startAngle: 0, endAngle: .pi * 2, clockwise: true)
         self.path = path
 
-        fillColor = .systemYellow
-        strokeColor = .systemOrange
+        switch type {
+        case .player:
+            fillColor = .systemYellow
+            strokeColor = .systemOrange
+        case .enemyRanged:
+            fillColor = .systemGreen
+            strokeColor = .green
+        case .enemyMagic:
+            fillColor = .systemCyan
+            strokeColor = .systemBlue
+        }
+        
         lineWidth = 1
         glowWidth = 3
-        name = "bullet"
+        name = type == .player ? "bullet" : "enemy_bullet"
         zPosition = ZPosition.projectile
 
         setupPhysics()
@@ -52,8 +71,8 @@ class BulletNode: SKShapeNode {
         physicsBody?.restitution = 0
         physicsBody?.linearDamping = 0
 
-        physicsBody?.categoryBitMask    = PhysicsCategory.bullet
-        physicsBody?.contactTestBitMask = PhysicsCategory.enemy
+        physicsBody?.categoryBitMask    = type == .player ? PhysicsCategory.bullet : PhysicsCategory.enemyProjectile
+        physicsBody?.contactTestBitMask = type == .player ? PhysicsCategory.enemy : PhysicsCategory.player
         physicsBody?.collisionBitMask   = PhysicsCategory.none  // pass through everything
     }
 

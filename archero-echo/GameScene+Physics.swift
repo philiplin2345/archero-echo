@@ -10,72 +10,99 @@ import SpriteKit
 extension GameScene: SKPhysicsContactDelegate {
 
     func didBegin(_ contact: SKPhysicsContact) {
-        let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+        let categoryA = contact.bodyA.categoryBitMask
+        let categoryB = contact.bodyB.categoryBitMask
+        let nodeA = contact.bodyA.node
+        let nodeB = contact.bodyB.node
 
-        // MARK: - Bullet ↔ Enemy
-
-        if collision == PhysicsCategory.bullet | PhysicsCategory.enemy {
-            let bulletNode: BulletNode
-            let enemyNode: EnemyNode
-
-            if let b = contact.bodyA.node as? BulletNode, let e = contact.bodyB.node as? EnemyNode {
-                bulletNode = b
-                enemyNode = e
-            } else if let b = contact.bodyB.node as? BulletNode, let e = contact.bodyA.node as? EnemyNode {
-                bulletNode = b
-                enemyNode = e
+        // Helper to check pairs
+        func isPair(_ type1: UInt32, _ type2: UInt32) -> Bool {
+            return (categoryA == type1 && categoryB == type2) || (categoryA == type2 && categoryB == type1)
+        }
+        
+        // Helper to extract nodes
+        func extract<T, U>(_ type1: UInt32, _ type2: UInt32) -> (T?, U?) {
+            if categoryA == type1 && categoryB == type2 {
+                return (nodeA as? T, nodeB as? U)
             } else {
-                return
-            }
-
-            // Deal damage
-            enemyNode.takeDamage(bulletNode.damage)
-            removeBullet(bulletNode)
-
-            // Create hit particle
-            spawnHitParticle(at: contact.contactPoint, color: .systemYellow)
-
-            if !enemyNode.isAlive {
-                notifyEnemyKilled()
-                spawnDeathParticle(at: enemyNode.position)
+                return (nodeB as? T, nodeA as? U)
             }
         }
 
-        // MARK: - Enemy ↔ Player
-
-        if collision == PhysicsCategory.enemy | PhysicsCategory.player {
-            let enemyNode: EnemyNode
-
-            if let e = contact.bodyA.node as? EnemyNode {
-                enemyNode = e
-            } else if let e = contact.bodyB.node as? EnemyNode {
-                enemyNode = e
-            } else {
-                return
-            }
-
-            guard enemyNode.isAlive else { return }
-
-            // Check cooldown to prevent damage spam
-            let currentTime = CACurrentMediaTime()
-            guard currentTime - enemyNode.lastContactDamageTime >= EnemyConfig.contactCooldown else { return }
-            enemyNode.lastContactDamageTime = currentTime
-
-            // Damage the player
-            let playerNode = self.children
-                .compactMap { ($0 as? SKNode)?.childNode(withName: "player") as? PlayerNode }
-                .first ?? (self.childNode(withName: "//player") as? PlayerNode)
-
-            // Fallback: access player from the gameplay layer
-            if let player = findPlayer() {
-                player.takeDamage(EnemyConfig.damage)
-                spawnHitParticle(at: contact.contactPoint, color: .systemRed)
-
-                if !player.isAlive {
-                    triggerGameOver()
-                }
+        // 1. Player Bullet ↔ Enemy
+        if isPair(PhysicsCategory.bullet, PhysicsCategory.enemy) {
+            let (bullet, enemy) = extract(PhysicsCategory.bullet, PhysicsCategory.enemy) as (BulletNode?, EnemyNode?)
+            if let bullet = bullet, let enemy = enemy {
+                bulletHitEnemy(bullet: bullet, enemy: enemy, contactPoint: contact.contactPoint)
             }
         }
+        
+        // 2. Player ↔ Enemy (Melee)
+        else if isPair(PhysicsCategory.player, PhysicsCategory.enemy) {
+            let (player, enemy) = extract(PhysicsCategory.player, PhysicsCategory.enemy) as (PlayerNode?, EnemyNode?)
+            if let player = player, let enemy = enemy {
+                playerHitByEnemy(player: player, enemy: enemy, contactPoint: contact.contactPoint)
+            }
+        }
+        
+        // 3. Player ↔ Enemy Projectile (Ranged/Magic)
+        else if isPair(PhysicsCategory.player, PhysicsCategory.enemyProjectile) {
+            let (player, projectile) = extract(PhysicsCategory.player, PhysicsCategory.enemyProjectile) as (PlayerNode?, BulletNode?)
+            if let player = player, let projectile = projectile {
+                playerHitByProjectile(player: player, projectile: projectile, contactPoint: contact.contactPoint)
+            }
+        }
+        
+        // 4. Player ↔ Powerup
+        else if isPair(PhysicsCategory.player, PhysicsCategory.powerup) {
+            let (player, powerup) = extract(PhysicsCategory.player, PhysicsCategory.powerup) as (PlayerNode?, PowerupNode?)
+            if let player = player, let powerup = powerup {
+                playerCollectedPowerup(player: player, powerup: powerup)
+            }
+        }
+    }
+    
+    // MARK: - Collision Handlers
+    
+    private func bulletHitEnemy(bullet: BulletNode, enemy: EnemyNode, contactPoint: CGPoint) {
+        enemy.takeDamage(bullet.damage)
+        removeBullet(bullet)
+        spawnHitParticle(at: contactPoint, color: .systemYellow)
+
+        if !enemy.isAlive {
+            notifyEnemyKilled(at: enemy.position)
+            spawnDeathParticle(at: enemy.position)
+        }
+    }
+    
+    private func playerHitByEnemy(player: PlayerNode, enemy: EnemyNode, contactPoint: CGPoint) {
+        guard enemy.isAlive else { return }
+
+        let currentTime = CACurrentMediaTime()
+        guard currentTime - enemy.lastContactDamageTime >= EnemyConfig.contactCooldown else { return }
+        
+        enemy.lastContactDamageTime = currentTime
+        player.takeDamage(EnemyConfig.damage)
+        spawnHitParticle(at: contactPoint, color: .systemRed)
+
+        if !player.isAlive {
+            triggerGameOver()
+        }
+    }
+    
+    private func playerHitByProjectile(player: PlayerNode, projectile: BulletNode, contactPoint: CGPoint) {
+        player.takeDamage(projectile.damage)
+        removeBullet(projectile)
+        spawnHitParticle(at: contactPoint, color: .systemRed)
+        
+        if !player.isAlive {
+            triggerGameOver()
+        }
+    }
+    
+    private func playerCollectedPowerup(player: PlayerNode, powerup: PowerupNode) {
+        player.collectPowerup()
+        powerup.removeFromParent()
     }
 
     // MARK: - Find Player Helper

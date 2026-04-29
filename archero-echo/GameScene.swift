@@ -183,7 +183,7 @@ class GameScene: SKScene {
         let deltaTime = min(dt, 1.0 / 30.0)
 
         updatePlayer(deltaTime: deltaTime, currentTime: currentTime)
-        updateEnemies(deltaTime: deltaTime)
+        updateEnemies(deltaTime: deltaTime, currentTime: currentTime)
         updateBullets(deltaTime: deltaTime)
         updateHUD()
     }
@@ -199,7 +199,8 @@ class GameScene: SKScene {
             player.canShoot = true
 
             // Auto-shoot at nearest enemy
-            if let bullet = player.tryShoot(enemies: aliveEnemies(), currentTime: currentTime) {
+            let firedBullets = player.tryShoot(enemies: aliveEnemies(), currentTime: currentTime)
+            for bullet in firedBullets {
                 gameplayLayer.addChild(bullet)
                 bullets.append(bullet)
             }
@@ -208,12 +209,18 @@ class GameScene: SKScene {
 
     // MARK: - Enemy Update
 
-    private func updateEnemies(deltaTime: TimeInterval) {
+    private func updateEnemies(deltaTime: TimeInterval, currentTime: TimeInterval) {
         // Remove dead enemies from tracking array
         enemies.removeAll { !$0.isAlive && $0.parent == nil }
 
-        for enemy in enemies where enemy.isAlive {
+        for enemy in aliveEnemies() {
             enemy.chase(playerPosition: player.position, deltaTime: deltaTime)
+            
+            // Try shooting (only applies to ranged/magic enemies)
+            if let bullet = enemy.tryShoot(targetPosition: player.position, currentTime: currentTime) {
+                gameplayLayer.addChild(bullet)
+                bullets.append(bullet)
+            }
         }
     }
 
@@ -274,8 +281,19 @@ class GameScene: SKScene {
         bullets.removeAll { $0 === bullet }
     }
 
-    func notifyEnemyKilled() {
+    func notifyEnemyKilled(at position: CGPoint) {
         waveManager.enemyKilled()
+        
+        // Chance to spawn powerup
+        if CGFloat.random(in: 0...1) <= PowerupConfig.dropChance {
+            spawnPowerup(at: position)
+        }
+    }
+    
+    private func spawnPowerup(at position: CGPoint) {
+        let powerup = PowerupNode()
+        powerup.position = position
+        gameplayLayer.addChild(powerup)
     }
 
     // MARK: - Touches
